@@ -1,0 +1,64 @@
+#!/usr/bin/env ruby
+
+require 'thor'
+require_relative '../lib/pi_hole'
+
+class PiHoleCommand < Thor
+  class_option :location, {
+    type: :string,
+    banner: 'http://pihole-domain-or-ip-address',
+    desc: <<~HERE
+      The protocol and domain of the target Pi-Hole server. Can also be defined in the environment variable \
+      PIHOLE_LOCATION.
+    HERE
+  }
+  class_option :api_key, {
+    type: :string,
+    banner: 'api-key',
+    desc: <<~HERE.strip
+      The key used to authenticate with the server. It is strongly recommended to define the environment variable \
+      PIHOLE_API_KEY to prevent leaking this information to your command history.
+    HERE
+  }
+
+  desc 'status', 'Prints the status of the target Pi-Hole server'
+  def status
+    response = endpoint.execute PiHole::StatusCommand.new
+    puts response.body
+  end
+
+  desc 'disable', 'Temporarily disable Pi-Hole filtering'
+  method_option :duration, {
+    type: :string,
+    banner: '30',
+    desc: 'The length of time to disable filtering in seconds',
+    required: true
+  }
+  def disable
+    command = DisableCommand.new duration: options[:duration]
+    response = endpoint.execute command
+    puts response.body
+  end
+
+  private
+
+  def location
+    @location ||= [
+      options[:location],
+      ENV['PIHOLE_LOCATION'],
+    ].compact.first
+  end
+
+  def api_key
+    @api_key ||= [
+      options[:api_key],
+      ENV['PIHOLE_API_KEY'],
+    ].compact.first
+  end
+
+  def endpoint
+    @endpoint ||= PiHole::Endpoint.new location: location, api_key: api_key
+  end
+end
+
+PiHoleCommand.start
