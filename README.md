@@ -22,7 +22,7 @@ location = 'http://192.168.1.4'
 # https://www.rubyguides.com/2019/01/ruby-environment-variables/
 api_key = 'my-super-secret-api-key'
 
-endpoint = PihHole::Endpoiont.new location: location, api_key: api_key
+endpoint = PiHole::Endpoiont.new location: location, api_key: api_key
 
 # Duration is in seconds
 command = PiHole::DisableCommand.new(duration: 60)
