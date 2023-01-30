@@ -1,7 +1,6 @@
 require_relative './lib/pi_hole'
-require 'rake'
 
-sdk_files = Rake::FileList['lib/**/*.rb']
+sdk_files = Dir.glob 'lib/**/*.rb'
 
 Gem::Specification.new do |s|
   s.name = 'pihole'
